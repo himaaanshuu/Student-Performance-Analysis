@@ -1,22 +1,3 @@
-# Student Performance Analysis
-
-Small data pipeline to load student data, perform basic cleaning, compute averages,
-predict performance status using a heuristic, and produce a chart.
-
-Features
-- Load from CSV (default). The pipeline is intentionally simple so the CSV can be edited and re-run quickly.
-- Compact, headless-friendly plotting. You can provide a custom output path to the plotting function.
-
-Quickstart
-1. Create a virtual environment (recommended):
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-2. To run the pipeline (reads CSV by default, writes chart to `outputs/charts` and saves processed data to DB):
 
 # Student Performance Analysis
 
