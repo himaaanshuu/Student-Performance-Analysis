@@ -1,25 +1,22 @@
-import os
 import sys
+import os
 
-# Ensure the top-level `src` package (located at data/src) is importable
-ROOT = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(ROOT, "data"))
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Make the package folder `data/src` importable as top-level package `src`.
+# Insert at front so it takes precedence during imports.
+data_dir = os.path.join(ROOT_DIR, "data")
+if data_dir not in sys.path:
+	sys.path.insert(0, data_dir)
 
 from src.data_loader import load_data
-from src.data_cleaning import clean_data
-from src.analysis import calculate_average
-from src.visualization import plot_attendance_vs_marks
-from src.prediction import predict_status
+from src.db_writer import insert_data
+from src.db_reader import fetch_student_report
 
-os.makedirs("outputs/charts", exist_ok=True)
-
-# Always load from CSV to keep the pipeline simple and editable.
+# 1. Load CSV and insert into MySQL
 df = load_data("data/raw/students_raw.csv")
-df = clean_data(df)
-df = calculate_average(df)
-df = predict_status(df)
+insert_data(df)
+print("Data inserted into MySQL")
 
-out_plot = plot_attendance_vs_marks(df)
-print(f"Wrote plot to: {out_plot}")
-
-print(df[["name", "average_marks", "attendance", "performance_status"]])
+# 2. Fetch final report from SQL VIEW
+report_df = fetch_student_report()
+print(report_df)
