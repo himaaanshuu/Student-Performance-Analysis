@@ -5,9 +5,6 @@ This project ingests student marks from CSV files, cleans and processes the data
 
 ---
 
-Badges (optional)
-- CI / tests: [add your CI badge]
-- License: [add license badge]
 
 Table of Contents
 - [Features](#features)
