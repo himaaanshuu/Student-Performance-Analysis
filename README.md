@@ -1,7 +1,7 @@
 # Student Performance Analysis 📊
 
 An end-to-end student performance analysis pipeline built with Python and MySQL.  
-This project ingests student marks from CSV files, cleans and processes the data, stores it in a MySQL database, and computes per-student performance summaries (average marks and pass/average/fail status).
+This project ingests student marks from CSV files, cleans and processes the data, stores it in a MySQL database, and computes per-student performance summaries (average marks and pass/average/fail status). The project can be run using CSV-based ingestion or by interacting directly with the MySQL database (SQL views are used for convenient aggregated queries and reporting).
 
 ---
 
@@ -17,7 +17,7 @@ Table of Contents
 - [Configuration](#configuration)
 - [Data Input Methods](#data-input-methods)
   - [1) CSV-based ingestion (recommended)](#1-csv-based-ingestion-recommended)
-  - [2) Direct MySQL inserts](#2-direct-mysql-inserts)
+  - [2) Direct MySQL inserts / SQL views](#2-direct-mysql-inserts--sql-views)
 - [CSV format (input)](#csv-format-input)
 - [How it works](#how-it-works)
 - [Sample output](#sample-output)
@@ -36,6 +36,7 @@ Table of Contents
 - Average marks calculation and performance classification:
   - Pass, Average, Fail (customizable thresholds)
 - MySQL persistence for raw and processed records
+- Use of SQL views for convenient aggregated queries and reporting
 - Modular code: loader → cleaner → analysis → DB writer/reader
 - Supports adding data via CSV files or directly into MySQL
 - Easily extensible to add visualizations or an API layer
@@ -103,6 +104,8 @@ By default the pipeline will:
 - Insert/update records in the MySQL database
 - Fetch processed results and print/display a summary
 
+Tip: you can run only the analysis/reporting step (which uses SQL views) if data is already present in the database.
+
 ---
 
 ## Configuration
@@ -158,8 +161,8 @@ df = load_csv("data/raw/new_students.csv")
 write_records_to_db(df)
 ```
 
-### 2) Direct MySQL inserts
-You can add data directly into the database (useful for integrations, UIs, or migration scripts). When adding rows in MySQL, use the same schema expected by the app.
+### 2) Direct MySQL inserts / SQL views
+You can add data directly into the database (useful for integrations, UIs, or migration scripts). When adding rows in MySQL, use the same schema expected by the app. The project also defines and uses SQL views for aggregated results (e.g., per-student averages and status) so reporting/consumption can be done directly from the database.
 
 Suggested schema (example):
 ```sql
@@ -203,6 +206,7 @@ mysql -u your_user -p -D student_performance
 Notes:
 - If you insert data directly to MySQL, run the pipeline or appropriate reader to re-calculate aggregates if your setup stores derived values separately. The pipeline's analysis step calculates average marks and statuses — either persist them on write or run analysis after inserts.
 - Consider using transactions when running batch inserts and perform validation to match CSV loader behavior (e.g., marks numeric range, required fields).
+- SQL views can be created to expose aggregates (average marks, status) for dashboards, BI tools or direct querying.
 
 ---
 
@@ -241,11 +245,12 @@ Notes:
 4. db_writer.py / db_reader.py
    - Persist raw and processed data to MySQL
    - Query aggregated results for reporting
+   - Optionally create and use SQL views for aggregated queries (per-student averages/status) so reporting consumers can read the view directly without re-running analysis
 
 5. main.py
    - Orchestrates the pipeline and prints a summary to stdout (or writes reports to `outputs/`)
 
-If you add data via MySQL directly, you can run only the analysis step (if implemented) to re-compute aggregates, or run the full pipeline that also validates inputs.
+If you add data via MySQL directly, you can run only the analysis step (if implemented) to re-compute aggregates, or run the full pipeline that also validates inputs. If you prefer, use the SQL views for read-only reporting and BI consumption.
 
 ---
 
